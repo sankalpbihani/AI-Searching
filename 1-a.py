@@ -83,13 +83,12 @@ def AStar(start):
 
 			heapq.heappush(frontier, (nextFvalue, getHeuristic(nextState), nextState))
 
-assert(AStar(str([[1, 2, 6, 3],[4, 9, 5, 7], [8, 13, 11, 15],[12, 14, 0, 10]])) == (11, 19, 59))
+assert(AStar(str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]])) == (11, 19, 59))
 #print AStar(str([[15, 8, 10, 4], [9, 12, 11, 3], [0, 5, 2, 14], [7, 1, 6, 13]]))
 
 INF = 10**10
 FOUND = -10
 
-generatedNodes = 0
 def dfs(state, gvalue, flimit):
 	generatedNodes = 0
 	fvalue = gvalue + getHeuristic(state)
@@ -126,6 +125,38 @@ def IDAStar(start):
 		
 		flimit = val
 
-assert(IDAStar(str([[1, 2, 6, 3],[4, 9, 5, 7], [8, 13, 11, 15],[12, 14, 0, 10]])) == (11, 25))
+assert(IDAStar(str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]])) == (11, 25))
 #print IDAStar(str([[1,2,0,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]))
 
+def RBFS(state, flimit = INF, gvalue = 0, fvalue = None):
+	if fvalue == None:
+		fvalue = getHeuristic(state)
+
+	if isGoal(state):
+		return True, fvalue, 0
+
+	nextStates = getMoves(state)
+	fvalues = []
+
+	generatedNodes = len(nextStates)
+
+	for i in range(len(nextStates)):
+		nextState = nextStates[i]
+		fvalues.append(((max(gvalue + 1 + getHeuristic(nextState), fvalue)), i))
+
+	while True:
+		fvalues.sort()
+		minValue, minState = fvalues[0]
+		
+		if minValue > flimit:
+			return False, minValue, generatedNodes
+		
+		altValue, altState = fvalues[1]
+		result, value, genNodes = RBFS(nextStates[minState], min(flimit, altValue), gvalue + 1, minValue)
+		fvalues[0] = (value, minState)
+		generatedNodes += genNodes
+		
+		if result:
+			return result, value, generatedNodes
+
+assert(RBFS(str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]])) == (True, 11, 36))
