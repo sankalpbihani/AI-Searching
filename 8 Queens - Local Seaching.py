@@ -1,4 +1,5 @@
 import random
+import math
 
 N = 8
 MAX_SCORE = N * (N-1) / 2
@@ -70,5 +71,35 @@ def randomRestartHillClimbing(state, maxRestarts = 10):
 		currScore = max(hillClimbing(state), currScore)
 		state = getRandomState()
 		cnt+=1
+
+	return currScore
+
+def getGeometricTemperature(a = 100, r = 0.999):
+	def _getGeometricTemperature(term):
+		return a * pow(r, term)
+
+	return _getGeometricTemperature
+
+def simulatedAnnealing(state, getTemperature = getGeometricTemperature(), eps = 0.1):
+	i = 0
+	currScore = getObjectiveScore(state)
+	temp = getTemperature(i)
+
+	while temp > eps:# and currScore < MAX_SCORE:
+		neighbours = getNeighbours(state)
+		idx = random.randrange(len(neighbours))
+		neighbour = neighbours[idx]
+		diff = getObjectiveScore(neighbour) - currScore
+		if diff > 0:
+			state = neighbour
+		else:
+			p = math.exp(float(diff)/temp)
+			x = random.random()
+			if x < p:
+				state = neighbour
+
+		i += 1
+		temp = getTemperature(i)
+		currScore = getObjectiveScore(state)
 
 	return currScore
