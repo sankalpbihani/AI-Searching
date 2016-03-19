@@ -25,13 +25,14 @@ def getRandomState():
 def getManhattanHeuristic(state):
 	state = eval(state)
 	heuristic = 0
-	
-	for i in range(N):
-		for j in range(N):
+	n = len(state)
+
+	for i in range(n):
+		for j in range(n):
 			val = state[i][j]
 
 			if val > 0:
-				heuristic += abs(i - val/N) + abs(j - val%N)
+				heuristic += abs(i - val/n) + abs(j - val%n)
 	
 	return heuristic
 
@@ -52,10 +53,11 @@ assert not isValidIndexIndex(4, 0)
 def getNeighbours(state):
 	neighbours = []
 	state = eval(state)
+	n = len(state)
 
 	x = y = None
 
-	for i in range(N):
+	for i in range(n):
 		if 0 in state[i]:
 			x = i
 			y = state[i].index(0)
