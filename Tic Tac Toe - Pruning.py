@@ -64,7 +64,7 @@ def makeMove(board, i, j, agent):
 assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), 0, 0, CPU) == str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
 assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), 0, 2, CPU) == str([[PLAYER, CPU, CPU], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
 
-def getChildren(board, agent):
+def getChildrenRandomlyOrdered(board, agent):
 	board = eval(board)
 	children = []
 
@@ -78,8 +78,8 @@ def getChildren(board, agent):
 	random.shuffle(children)
 	return children
 
-assert str([[PLAYER, CPU, CPU], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]) in getChildren(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), CPU)
-assert len(getChildren(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), CPU)) == 3
+assert str([[PLAYER, CPU, CPU], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]) in getChildrenRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), CPU)
+assert len(getChildrenRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), CPU)) == 3
 
 def getUtility(board):	
 	if getBoardState(board) == PLAYER_WIN:
@@ -104,7 +104,7 @@ def printBoard(board):
 	print '-----------'
 	printRow(board[2])
 
-def maxPlayer(board, alpha, beta):
+def maxPlayer(board, alpha, beta, getChildren = getChildrenRandomlyOrdered):
 	if getBoardState(board):
 		return getUtility(board), board
 
@@ -126,7 +126,7 @@ def maxPlayer(board, alpha, beta):
 
 	return bestValue, bestChild
 
-def minPlayer(board, alpha, beta):
+def minPlayer(board, alpha, beta, getChildren = getChildrenRandomlyOrdered):
 	if getBoardState(board):
 		return getUtility(board), board
 
@@ -194,4 +194,4 @@ def playTicTacToe():
 	else:
 		print "\nIts a Draw! Good game human."
 
-playTicTacToe()
+#playTicTacToe()
