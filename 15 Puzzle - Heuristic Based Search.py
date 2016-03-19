@@ -2,6 +2,8 @@ import heapq
 import random
 
 N = 4
+INF = 10**10
+FOUND = -10
 
 def getRandomState():
 	arr = []
@@ -107,9 +109,6 @@ def AStar(state, getHeuristic = getManhattanHeuristic):
 
 assert AStar(str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]])) == (11, 19, 59)
 #print AStar(str([[15, 8, 10, 4], [9, 12, 11, 3], [0, 5, 2, 14], [7, 1, 6, 13]]))
-
-INF = 10**10
-FOUND = -10
 
 def dfs(state, gvalue, flimit, getHeuristic = getManhattanHeuristic):
 	generatedNodes = 0

@@ -108,31 +108,31 @@ def simulatedAnnealing(state, getTemperature = getGeometricTemperature(), epsilo
 
 	return currScore
 
-def getCumulativeScore(population):
-	cf = []
+def getNormalizedCumulativeScore(population):
+	ncf = []
 	currSum = 0
 	currScore = MIN_SCORE
 
 	for state in population:
 		score = getObjectiveScore(state)
 		currSum += score
-		cf.append(currSum)
+		ncf.append(currSum)
 
 		if currScore < score:
 			currScore = score
 
-	last = cf[-1]
-	for i in range(len(cf)):
-		cf[i] = float(cf[i]) / last
+	last = ncf[-1]
+	for i in range(len(ncf)):
+		ncf[i] = float(ncf[i]) / last
 
-	return currScore, cf
+	return currScore, ncf
 
-def getRouletteSelection(population, cf):
+def getRouletteSelection(population, ncf):
 	selected = []
 
 	for i in range(len(population)):
 		roulette = random.random()
-		idx = bisect.bisect_right(cf, roulette)
+		idx = bisect.bisect_right(ncf, roulette)
 		selected.append(population[idx])
 
 	return selected
@@ -182,7 +182,7 @@ def getMutations(nextGeneration, mutationProbability):
 	return mutatedGeneration
 
 
-def geneticAlgorithm(populationCount = 200, mutationProbability = 0.01, maxIterations = 200):
+def geneticAlgorithm(populationCount = 200, mutationProbability = 0.005, maxIterations = 200):
 	population = []
 
 	for i in range(populationCount):
@@ -190,16 +190,16 @@ def geneticAlgorithm(populationCount = 200, mutationProbability = 0.01, maxItera
 		population.append(state)
 
 	i = 0
-	currScore, cf = getCumulativeScore(population)
+	currScore, ncf = getNormalizedCumulativeScore(population)
 	maxScore = currScore
 
 	while i < maxIterations and currScore < MAX_SCORE:
-		selected = getRouletteSelection(population, cf)
+		selected = getRouletteSelection(population, ncf)
 		nextGeneration = getCrossover(selected)
 		mutatedGeneration = getMutations(nextGeneration, mutationProbability)
 		population = mutatedGeneration
 
-		currScore, cf = getCumulativeScore(population)
+		currScore, ncf = getNormalizedCumulativeScore(population)
 		i += 1
 		maxScore = max(maxScore, currScore)
 
