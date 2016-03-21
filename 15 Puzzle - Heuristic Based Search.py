@@ -24,6 +24,15 @@ def getRandomState():
 
 	return str(state)
 
+def getInitialState():
+	state = []
+	for i in range(N):
+		row = []
+		for j in range(N):
+			row.append(i*N + j)
+		state.append(row)
+	return str(state)
+
 def getManhattanHeuristic(state):
 	state = eval(state)
 	heuristic = 0
@@ -44,7 +53,7 @@ def isGoal(state, getHeuristic = getManhattanHeuristic):
 	return getHeuristic(state) == 0
 		
 assert isGoal(str([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]))
-
+assert isGoal(getInitialState())
 
 def isValidIndexIndex(i, j):
 	return i >= 0 and j >= 0 and i < N and j < N
@@ -139,7 +148,8 @@ def IDAStar(state, getHeuristic = getManhattanHeuristic):
 	flimit = getHeuristic(state)
 
 	while True:
-		val, generatedNodes = dfs(state, 0, flimit)
+		val, gen = dfs(state, 0, flimit)
+		generatedNodes += gen
 		
 		if val == FOUND:
 			return flimit, generatedNodes
@@ -181,3 +191,21 @@ def RBFS(state, flimit = INF, gvalue = 0, fvalue = None, getHeuristic = getManha
 			return result, value, generatedNodes
 
 assert RBFS(str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]])) == (True, 11, 36)
+
+def getRandomSolvableState(moves = 100):
+	state = getInitialState()
+	for i in range(moves):
+		neighbours = getNeighbours(state)
+		state = random.choice(neighbours)
+	return state
+
+def compareAStarAndIDAStar():
+	state = getRandomSolvableState()
+	print state
+	opt1, _, gen1 = AStar(state)
+	print opt1, gen1
+	opt2, gen2 = IDAStar(state)
+	print opt2, gen2
+	return state, (opt1, opt2), (gen1, gen2)
+
+#print compareAStarAndIDAStar()

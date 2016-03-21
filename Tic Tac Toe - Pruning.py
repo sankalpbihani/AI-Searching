@@ -53,7 +53,9 @@ def getBoardState(board):
 assert getBoardState(getEmptyBoard()) == None
 assert getBoardState(str([[PLAYER, CPU, PLAYER], [CPU, PLAYER, EMPTY], [CPU, EMPTY, PLAYER]])) == PLAYER_WIN
 
-def makeMove(board, i, j, agent):
+def makeMove(board, move, agent):
+	i = move[0]
+	j = move[1]
 	board =  eval(board)
 
 	if board[i][j] == EMPTY:
@@ -61,25 +63,23 @@ def makeMove(board, i, j, agent):
 
 	return str(board)
 
-assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), 0, 0, CPU) == str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
-assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), 0, 2, CPU) == str([[PLAYER, CPU, CPU], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
+assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), (0, 0), CPU) == str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
+assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), (0, 2), CPU) == str([[PLAYER, CPU, CPU], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
 
-def getChildrenRandomlyOrdered(board, agent):
+def getMovesRandomlyOrdered(board):
 	board = eval(board)
-	children = []
+	moves = []
 
 	for i in range(3):
 		for j in range(3):
 			if board[i][j] == EMPTY:
-				board[i][j] = agent
-				children.append(str(board))
-				board[i][j] = EMPTY
+				moves.append((i, j))
 
-	random.shuffle(children)
-	return children
+	random.shuffle(moves)
+	return moves
 
-assert str([[PLAYER, CPU, CPU], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]) in getChildrenRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), CPU)
-assert len(getChildrenRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), CPU)) == 3
+assert (0, 2) in getMovesRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]))
+assert len(getMovesRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]))) == 3
 
 def getUtility(board):	
 	if getBoardState(board) == PLAYER_WIN:
@@ -104,15 +104,16 @@ def printBoard(board):
 	print '-----------'
 	printRow(board[2])
 
-def maxPlayer(board, alpha, beta, getChildren = getChildrenRandomlyOrdered):
+def maxPlayer(board, alpha, beta, getMoves = getMovesRandomlyOrdered):
 	if getBoardState(board):
 		return getUtility(board), board
 
 	bestValue = -INF
 	bestChild = None
-	children = getChildren(board, CPU)
+	moves = getMoves(board)
 
-	for child in children:
+	for move in moves:
+		child = makeMove(board, move, CPU)
 		value, tmp = minPlayer(child, alpha, beta)
 		
 		if value > bestValue:
@@ -126,15 +127,16 @@ def maxPlayer(board, alpha, beta, getChildren = getChildrenRandomlyOrdered):
 
 	return bestValue, bestChild
 
-def minPlayer(board, alpha, beta, getChildren = getChildrenRandomlyOrdered):
+def minPlayer(board, alpha, beta, getMoves = getMovesRandomlyOrdered):
 	if getBoardState(board):
 		return getUtility(board), board
 
 	bestValue = INF
 	bestChild = None
-	children = getChildren(board, PLAYER)
+	moves = getMoves(board)
 
-	for child in children:
+	for move in moves:
+		child = makeMove(board, move, PLAYER)
 		value, tmp = maxPlayer(child, alpha, beta)
 
 		if bestValue > value:
@@ -153,13 +155,12 @@ def alplaBetaPruning(board):
 
 def getPlayerMove(board):
 	print "\nYour Turn, Enter Input\n"
-	i, j = map(int, raw_input().strip().split(' '))
-	print "bb"
-	board = makeMove(board, i, j, PLAYER)
-	print "aaa"
+	move = map(int, raw_input().strip().split(' '))
+	board = makeMove(board, move, PLAYER)
 	return board
 
 def playTicTacToe():
+	#random.seed()
 	board = getEmptyBoard()
 
 	value, board = alplaBetaPruning(board)
