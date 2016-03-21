@@ -99,7 +99,7 @@ def AStar(state, getHeuristic = getManhattanHeuristic):
 
 		if state in explored:
 			continue
-
+		
 		explored.add(state)
 
 		if isGoal(state):
@@ -145,6 +145,7 @@ def dfs(state, gvalue, flimit, getHeuristic = getManhattanHeuristic):
 
 def IDAStar(state, getHeuristic = getManhattanHeuristic):
 	generatedNodes = 0
+	iterations = 1
 	flimit = getHeuristic(state)
 
 	while True:
@@ -152,11 +153,12 @@ def IDAStar(state, getHeuristic = getManhattanHeuristic):
 		generatedNodes += gen
 		
 		if val == FOUND:
-			return flimit, generatedNodes
+			return flimit, iterations, generatedNodes
 		
 		flimit = val
+		iterations += 1
 
-assert IDAStar(str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]])) == (11, 25)
+assert IDAStar(str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]])) == (11, 1, 25)
 #print IDAStar(str([[1,2,0,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]))
 
 def RBFS(state, flimit = INF, gvalue = 0, fvalue = None, getHeuristic = getManhattanHeuristic):
@@ -201,11 +203,13 @@ def getRandomSolvableState(moves = 100):
 
 def compareAStarAndIDAStar():
 	state = getRandomSolvableState()
+	opt1, exp, gen1 = AStar(state)
+	if opt1 > 30:
+		return None
 	print state
-	opt1, _, gen1 = AStar(state)
-	print opt1, gen1
-	opt2, gen2 = IDAStar(state)
-	print opt2, gen2
+	print opt1, exp, gen1
+	opt2, itr, gen2 = IDAStar(state)
+	print opt2, itr, gen2
 	return state, (opt1, opt2), (gen1, gen2)
 
-#print compareAStarAndIDAStar()
+print compareAStarAndIDAStar()

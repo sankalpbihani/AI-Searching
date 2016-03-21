@@ -160,7 +160,6 @@ def getPlayerMove(board):
 	return board
 
 def playTicTacToe():
-	#random.seed()
 	board = getEmptyBoard()
 
 	value, board = alplaBetaPruning(board)

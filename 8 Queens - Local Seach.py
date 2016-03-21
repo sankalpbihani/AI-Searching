@@ -207,3 +207,4 @@ def geneticAlgorithm(populationCount = 200, mutationProbability = 0.005, maxIter
 	return currScore
 
 #print geneticAlgorithm()
+print simulatedAnnealing(getRandomState())
