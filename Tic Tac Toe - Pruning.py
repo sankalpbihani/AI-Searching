@@ -66,7 +66,7 @@ def makeMove(board, move, agent):
 assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), (0, 0), CPU) == str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
 assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), (0, 2), CPU) == str([[PLAYER, CPU, CPU], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
 
-def getMovesRandomlyOrdered(board):
+def getMovesSeriallyOrdered(board):
 	board = eval(board)
 	moves = []
 
@@ -75,6 +75,10 @@ def getMovesRandomlyOrdered(board):
 			if board[i][j] == EMPTY:
 				moves.append((i, j))
 
+	return moves
+
+def getMovesRandomlyOrdered(board):
+	moves = getMovesSeriallyOrdered(board)
 	random.shuffle(moves)
 	return moves
 
@@ -182,7 +186,7 @@ def playTicTacToe():
 
 		value, board = alplaBetaPruning(board)
 
-		print "\nMy Turn. Prepare for the worst. \n"
+		print "\nMy Turn. Prepare yourself. \n"
 		printBoard(board)
 
 	status = getBoardState(board)

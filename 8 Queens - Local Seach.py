@@ -108,6 +108,14 @@ def simulatedAnnealing(state, getTemperature = getGeometricTemperature(), epsilo
 
 	return currScore
 
+# cnt = 0
+# for i in range(20):
+# 	if MAX_SCORE != simulatedAnnealing(getRandomState(), getGeometricTemperature(100, 0.9), 0):
+# 		cnt += 1
+# print cnt
+
+# print simulatedAnnealing(getRandomState(), getGeometricTemperature(10, 0.05), 0)
+
 def getNormalizedCumulativeScore(population):
 	ncf = []
 	currSum = 0
@@ -117,9 +125,7 @@ def getNormalizedCumulativeScore(population):
 		score = getObjectiveScore(state)
 		currSum += score
 		ncf.append(currSum)
-
-		if currScore < score:
-			currScore = score
+		currScore = max(currScore, score)
 
 	last = ncf[-1]
 	for i in range(len(ncf)):
@@ -181,7 +187,6 @@ def getMutations(nextGeneration, mutationProbability):
 
 	return mutatedGeneration
 
-
 def geneticAlgorithm(populationCount = 200, mutationProbability = 0.005, maxIterations = 200):
 	population = []
 
@@ -206,5 +211,10 @@ def geneticAlgorithm(populationCount = 200, mutationProbability = 0.005, maxIter
 		#print currScore, maxScore
 	return currScore
 
-#print geneticAlgorithm()
-print simulatedAnnealing(getRandomState())
+cnt = 0
+for i in range(20):
+	if geneticAlgorithm() == MAX_SCORE:
+		cnt += 1
+print cnt
+
+print getObjectiveScore(str([5,2,4,7,3,8,6,1]))
