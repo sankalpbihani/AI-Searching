@@ -187,7 +187,7 @@ def getMutations(nextGeneration, mutationProbability):
 
 	return mutatedGeneration
 
-def geneticAlgorithm(populationCount = 200, mutationProbability = 0.005, maxIterations = 200):
+def geneticAlgorithm(populationCount = 200, mutationProbability = 0.02, maxIterations = 200):
 	population = []
 
 	for i in range(populationCount):
@@ -207,14 +207,12 @@ def geneticAlgorithm(populationCount = 200, mutationProbability = 0.005, maxIter
 		currScore, ncf = getNormalizedCumulativeScore(population)
 		i += 1
 		maxScore = max(maxScore, currScore)
-
-		#print currScore, maxScore
 	return currScore
 
-cnt = 0
-for i in range(20):
-	if geneticAlgorithm() == MAX_SCORE:
-		cnt += 1
-print cnt
+# cnt = 0
+# for i in range(100):
+# 	if geneticAlgorithm() == MAX_SCORE:
+# 		cnt += 1
+# print cnt
 
-print getObjectiveScore(str([5,2,4,7,3,8,6,1]))
+#print getObjectiveScore(str([5,2,4,7,3,8,6,1]))

@@ -194,22 +194,39 @@ def RBFS(state, flimit = INF, gvalue = 0, fvalue = None, getHeuristic = getManha
 
 assert RBFS(str([[1, 2, 6, 3], [4, 9, 5, 7], [8, 13, 11, 15], [12, 14, 0, 10]])) == (True, 11, 36)
 
-def getRandomSolvableState(moves = 100):
+def getRandomSolvableState(moves):
 	state = getInitialState()
 	for i in range(moves):
 		neighbours = getNeighbours(state)
 		state = random.choice(neighbours)
 	return state
 
-def compareAStarAndIDAStar():
-	state = getRandomSolvableState()
+def compareAStarAndIDAStar(moves = 100):
+	state = getRandomSolvableState(random.randint(moves - 9, moves))
 	opt1, exp, gen1 = AStar(state)
-	if opt1 > 30:
+	if opt1 > 31 or gen1 > 4000:
 		return None
 	print state
 	print opt1, exp, gen1
 	opt2, itr, gen2 = IDAStar(state)
 	print opt2, itr, gen2
-	return state, (opt1, opt2), (gen1, gen2)
+	return state, (opt1, gen1, exp), (opt2, gen2, itr)
 
-print compareAStarAndIDAStar()
+# print compareAStarAndIDAStar()
+
+def writeDataToFile1():
+	file = open("1.txt", "w")
+	file.write("state, (A* opt, A* generated, A* explored), (IDA* opt, IDA* generated, IDA* iterations)\n\n")
+	i = 0
+
+	while i < 20:
+		line = compareAStarAndIDAStar()
+		if line:
+			line = str(line)
+			print line
+			file.write(line + "\n")
+			i += 1
+
+	file.close()
+
+writeDataToFile1()
