@@ -229,4 +229,55 @@ def writeDataToFile1():
 
 	file.close()
 
-writeDataToFile1()
+# writeDataToFile1()
+
+def compareIDAStarAndRBFS(moves = 100):
+	state = getRandomSolvableState(random.randint(moves - 9, moves))
+	opt, _, gen = AStar(state)
+	
+	if opt > 31 or gen > 4000:
+		return None
+
+	print state, opt, gen
+	opt1, itr, gen1 = IDAStar(state)
+	print opt1, itr, gen1
+	solved, opt2, gen2 = RBFS(state)
+	print solved, opt2, gen2
+
+	return state, opt, (opt1, itr, gen1), (solved, opt2, gen2)
+
+def writeDataToFile2a():
+	file = open("2a.txt", "w")
+	file.write("state, optimal, (IDA* opt, IDA* generated, IDA* iterations), (RBFS solved, RBFS opt, RBFS generated),\n\n")
+	i = 0
+
+	while i < 20:
+		line = compareIDAStarAndRBFS()
+		if line:
+			line = str(line)
+			print line
+			file.write(line + "\n")
+			i += 1
+
+	file.close()
+
+# writeDataToFile2a()
+
+def getMisplacedTilesHeuristic(state):
+	state = eval(state)
+	heuristic = 0
+	n = len(state)
+
+	for i in range(n):
+		for j in range(n):
+			val = state[i][j]
+			heuristic += ((val != 0) and (val != (i*n + j)))
+
+	return heuristic
+
+assert getMisplacedTilesHeuristic(str([[2, 1, 3, 5], [4, 0, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]])) == 3
+
+def getWeightedHeuristic(state, w1 = 0.5, w2 = 0.5):
+	return w1 * getManhattanHeuristic(state) + w2 * getMisplacedTilesHeuristic(state)
+
+assert getWeightedHeuristic(str([[2, 1, 3, 5], [4, 0, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]])) == 4.5
