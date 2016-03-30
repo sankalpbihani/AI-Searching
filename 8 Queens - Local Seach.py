@@ -215,4 +215,71 @@ def geneticAlgorithm(populationCount = 200, mutationProbability = 0.02, maxItera
 # 		cnt += 1
 # print cnt
 
-#print getObjectiveScore(str([5,2,4,7,3,8,6,1]))
+# print getObjectiveScore(str([5,2,4,7,3,8,6,1]))
+
+def getNRandomStates(n):
+	states = []
+	for i in xrange(n):
+		states.append(getRandomState())
+	return states
+
+def evaluateRandomRestart(states):
+	f = open("3-random-restart-100.txt", "w")
+	
+	for i in range(1, 21):
+		cnt = 0
+		for s in states:
+			if randomRestartHillClimbing(s, i) == MAX_SCORE:
+				cnt+=1
+
+		print i, cnt
+		f.write(str(i) + "," + str(cnt) + "\n")
+
+	f.close()
+
+randomStates = getNRandomStates(100)
+# evaluateRandomRestart(randomStates)
+
+def evaluateSimulatedAnnealing(states):
+	f = open("3-simulated-annealing-100.txt", "w")
+
+	aList = [1, 5, 10, 20, 100]
+	rList = [0.8, 0.9, 0.95, 0.99, 0.999]
+	eList = [0.1, 0.01, 10**-5, 10**-10, 10**-20]
+
+	for a in aList:
+		for e in eList:
+			for r in rList:
+				cnt = 0
+				for s in states:
+					if simulatedAnnealing(s, getGeometricTemperature(a, r), e) == MAX_SCORE:
+						cnt += 1
+
+				print a, e, r, cnt
+				f.write(str(a) + "," + str(e) + "," + str(r) + "," + str(cnt) + "\n")
+
+	f.close()
+
+# evaluateSimulatedAnnealing(randomStates)
+
+def evaluateGeneticAlgorithm(states):
+	f = open("4-genetic-algorithm-intensive-100.txt", "w")
+
+	popList = [20, 50, 100, 200]
+	mutList = [0.005, 0.01, 0.02, 0.05]
+	iterList = [50, 100, 200, 500, 1000]
+
+	for pop in popList:
+		for mut in mutList:
+			for itr in iterList:
+				cnt = 0
+				for s in states:
+					if geneticAlgorithm(pop, mut, itr) == MAX_SCORE:
+						cnt += 1
+
+				print pop, mut, itr, cnt
+				f.write(str(pop) + "," + str(mut) + "," + str(itr) + "," + str(cnt) + "\n")
+
+	f.close()
+
+evaluateGeneticAlgorithm(randomStates)

@@ -66,7 +66,7 @@ def makeMove(board, move, agent):
 assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), (0, 0), CPU) == str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
 assert makeMove(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), (0, 2), CPU) == str([[PLAYER, CPU, CPU], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]])
 
-def getMovesSeriallyOrdered(board):
+def getMovesSeriallyOrdered(board, _):
 	board = eval(board)
 	moves = []
 
@@ -77,13 +77,13 @@ def getMovesSeriallyOrdered(board):
 
 	return moves
 
-def getMovesRandomlyOrdered(board):
-	moves = getMovesSeriallyOrdered(board)
+def getMovesRandomlyOrdered(board, _):
+	moves = getMovesSeriallyOrdered(board, _)
 	random.shuffle(moves)
 	return moves
 
-assert (0, 2) in getMovesRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]))
-assert len(getMovesRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]))) == 3
+assert (0, 2) in getMovesRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), PLAYER)
+assert len(getMovesRandomlyOrdered(str([[PLAYER, CPU, EMPTY], [PLAYER, CPU, EMPTY], [PLAYER, EMPTY, PLAYER]]), PLAYER)) == 3
 
 def getUtility(board):	
 	if getBoardState(board) == PLAYER_WIN:
@@ -108,17 +108,19 @@ def printBoard(board):
 	print '-----------'
 	printRow(board[2])
 
-def maxPlayer(board, alpha, beta, getMoves = getMovesRandomlyOrdered):
+def maxPlayer(board, alpha, beta, depth, stats, getMoves = getMovesRandomlyOrdered):
 	if getBoardState(board):
+		stats[0] = max(stats[0], depth)
 		return getUtility(board), board
 
 	bestValue = -INF
 	bestChild = None
-	moves = getMoves(board)
+	moves = getMoves(board, CPU)
 
 	for move in moves:
+		stats[1] += 1
 		child = makeMove(board, move, CPU)
-		value, tmp = minPlayer(child, alpha, beta)
+		value, tmp = minPlayer(child, alpha, beta, depth + 1, stats, getMoves)
 		
 		if value > bestValue:
 			bestValue = value
@@ -131,17 +133,19 @@ def maxPlayer(board, alpha, beta, getMoves = getMovesRandomlyOrdered):
 
 	return bestValue, bestChild
 
-def minPlayer(board, alpha, beta, getMoves = getMovesRandomlyOrdered):
+def minPlayer(board, alpha, beta, depth, stats, getMoves):
 	if getBoardState(board):
+		stats[0] = max(stats[0], depth)
 		return getUtility(board), board
 
 	bestValue = INF
 	bestChild = None
-	moves = getMoves(board)
+	moves = getMoves(board, PLAYER)
 
 	for move in moves:
+		stats[1] += 1
 		child = makeMove(board, move, PLAYER)
-		value, tmp = maxPlayer(child, alpha, beta)
+		value, tmp = maxPlayer(child, alpha, beta, depth + 1, stats, getMoves)
 
 		if bestValue > value:
 			bestValue = value
@@ -154,8 +158,11 @@ def minPlayer(board, alpha, beta, getMoves = getMovesRandomlyOrdered):
 
 	return bestValue, bestChild
 
-def alplaBetaPruning(board):
-	return maxPlayer(board, -INF, INF)
+def alplaBetaPruning(board, getMoves = getMovesRandomlyOrdered):
+	stats = [0, 0]
+	ret = maxPlayer(board, -INF, INF, 0, stats, getMoves)
+	print stats
+	return ret, stats
 
 def getPlayerMove(board):
 	print "\nYour Turn, Enter Input\n"
@@ -199,3 +206,108 @@ def playTicTacToe():
 		print "\nIts a Draw! Good game human."
 
 #playTicTacToe()
+
+def calcNodeCount(d, bf):
+	nodes = 0
+	for i in range(d+1):
+		nodes += pow(bf, i)
+	return nodes
+
+def getBranchingFactor(d, n):
+	lo, hi = 0.0, 10.0
+
+	while lo < (hi - 10**-5):
+		mid = (lo + hi)/2
+		nodes = calcNodeCount(d, mid)
+
+		if nodes == n:
+			return mid
+		elif nodes < n:
+			lo = mid
+		else:
+			hi = mid
+
+	return lo
+
+def getMovesBetterOrdered(board, agent):
+	board = eval(board)
+	moves = []
+	a = [(1, 1), (0, 0), (0, 2), (2, 0), (2, 2), (0, 1), (1, 0), (2, 1), (1, 2)]
+
+	for aa in a:
+		if board[aa[0]][aa[1]] == EMPTY:
+			moves.append(aa)
+
+	return moves
+
+def getWinPositions(board, agent):
+	board = eval(board)
+	moves = []
+
+	cnt3, pos3 = 0, -1
+	cnt4, pos4 = 0, -1
+
+	for i in range(3):
+		cnt1, pos1 = 0, -1
+		cnt2, pos2 = 0, -1
+
+		for j in range(3):
+			cnt1 += board[i][j] == agent
+			cnt2+= board[j][i] == agent
+
+			if board[i][j] == EMPTY:
+				pos1 = j
+
+			if board[j][i] == EMPTY:
+				pos2 = j
+
+		if cnt1 == 2 and pos1 >= 0:
+			moves.append((i, pos1))
+
+		if cnt2 == 2 and pos2 >= 0:
+			moves.append((pos2, i))
+
+		cnt3 += board[i][i] == agent
+		cnt4 += board[i][2-i] == agent
+
+		if board[i][i] == EMPTY:
+			pos3 = i
+
+		if board[i][2-i] == EMPTY:
+			pos4 = i
+
+	if cnt3 == 2 and pos3 >= 0:
+		moves.append((pos3, pos3))
+
+	if cnt4 == 2 and pos4 >= 0:
+		moves.append((pos4, 2-pos4))
+
+	return moves
+
+def getMovesEvenBetterOrdered(board, agent):
+	moves = []
+	otherAgent = PLAYER if agent == CPU else CPU
+
+	s_moves = getWinPositions(board, agent)
+	for i in s_moves:
+		moves.append(i)
+
+	s_moves = getWinPositions(board, otherAgent)
+	for i in s_moves:
+		moves.append(i)
+
+	s_moves = getMovesBetterOrdered(board, agent)
+	for i in s_moves:
+		if not i in moves:
+			moves.append(i)
+
+	return moves 
+
+_, stats = alplaBetaPruning(getEmptyBoard(), getMovesSeriallyOrdered)
+print getBranchingFactor(stats[0], stats[1])
+
+_, stats = alplaBetaPruning(getEmptyBoard(), getMovesBetterOrdered)
+print getBranchingFactor(stats[0], stats[1])
+
+_, stats = alplaBetaPruning(getEmptyBoard(), getMovesEvenBetterOrdered)
+print getBranchingFactor(stats[0], stats[1])

@@ -1,5 +1,6 @@
 import heapq
 import random
+import math
 
 N = 4
 INF = 10**10
@@ -277,7 +278,45 @@ def getMisplacedTilesHeuristic(state):
 
 assert getMisplacedTilesHeuristic(str([[2, 1, 3, 5], [4, 0, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]])) == 3
 
-def getWeightedHeuristic(state, w1 = 0.5, w2 = 0.5):
-	return w1 * getManhattanHeuristic(state) + w2 * getMisplacedTilesHeuristic(state)
+def getWeightedHeuristic(state, w1 = 0, w2 = 1.5):
+	return int(math.ceil(w1 * getManhattanHeuristic(state) + w2 * getMisplacedTilesHeuristic(state)))
 
-assert getWeightedHeuristic(str([[2, 1, 3, 5], [4, 0, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]])) == 4.5
+assert getWeightedHeuristic(str([[2, 1, 3, 5], [4, 0, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]), 0.5, 0.5) == 5
+
+def compareHeuristics(moves = 100, heuristic1 = getManhattanHeuristic, heuristic2 = getWeightedHeuristic):
+	state = getRandomSolvableState(random.randint(moves - 9, moves))
+	opt, _, gen = AStar(state)
+	
+	if opt > 31 or gen > 3500:
+		return None
+
+	print state, opt, gen
+	opt11, itr1, gen11= IDAStar(state, getHeuristic = heuristic1)
+	print opt11, itr1, gen11
+	solved1, opt21, gen21 = RBFS(state, getHeuristic = heuristic1)
+	print solved1, opt21, gen21
+
+	opt12, itr2, gen12= IDAStar(state, getHeuristic = heuristic2)
+	print opt12, itr2, gen12
+	solved2, opt22, gen22 = RBFS(state, getHeuristic = heuristic2)
+	print solved2, opt22, gen22
+
+	return state, opt, (opt11, itr1, gen11), (solved1, opt21, gen21), (opt12, itr2, gen12), (solved2, opt22, gen22)
+
+
+def writeDataToFile2b():
+	file = open("2bv0,2.txt", "w")
+	file.write("state, optimal, (heuristic1)(IDA* opt, IDA* generated, IDA* iterations), (heuristic1)(RBFS solved, RBFS opt, RBFS generated), (heuristic2)(IDA* opt, IDA* generated, IDA* iterations), (heuristic2)(RBFS solved, RBFS opt, RBFS generated)\n\n")
+	i = 0
+
+	while i < 20:
+		line = compareHeuristics()
+		if line:
+			line = str(line)
+			print line
+			file.write(line + "\n")
+			i += 1
+
+	file.close()
+
+writeDataToFile2b()
