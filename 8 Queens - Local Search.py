@@ -224,9 +224,9 @@ def getNRandomStates(n):
 	return states
 
 def evaluateRandomRestart(states):
-	f = open("3-random-restart-100.txt", "w")
+	f = open("3-random-restart-intensive-100.txt", "w")
 	
-	for i in range(1, 21):
+	for i in range(1, 40):
 		cnt = 0
 		for s in states:
 			if randomRestartHillClimbing(s, i) == MAX_SCORE:
@@ -238,7 +238,7 @@ def evaluateRandomRestart(states):
 	f.close()
 
 randomStates = getNRandomStates(100)
-# evaluateRandomRestart(randomStates)
+evaluateRandomRestart(randomStates)
 
 def evaluateSimulatedAnnealing(states):
 	f = open("3-simulated-annealing-100.txt", "w")
@@ -263,11 +263,16 @@ def evaluateSimulatedAnnealing(states):
 # evaluateSimulatedAnnealing(randomStates)
 
 def evaluateGeneticAlgorithm(states):
-	f = open("4-genetic-algorithm-intensive-100.txt", "w")
+	f = open("4-genetic-algorithm-small-100.txt", "w")
 
-	popList = [20, 50, 100, 200]
-	mutList = [0.005, 0.01, 0.02, 0.05]
-	iterList = [50, 100, 200, 500, 1000]
+	# popList = [20, 50, 100, 200]
+	# mutList = [0.005, 0.01, 0.02, 0.05]
+	# iterList = [50, 100, 200, 500, 1000]
+
+	popList = [4]
+	mutList = [0.01, 0.02, 0.05]
+	iterList = [5000, 10000, 20000, 50000]
+
 
 	for pop in popList:
 		for mut in mutList:
@@ -282,4 +287,4 @@ def evaluateGeneticAlgorithm(states):
 
 	f.close()
 
-evaluateGeneticAlgorithm(randomStates)
+# evaluateGeneticAlgorithm(randomStates)

@@ -173,8 +173,10 @@ def getPlayerMove(board):
 def playTicTacToe():
 	board = getEmptyBoard()
 
-	value, board = alplaBetaPruning(board)
+	(value, board), stats = alplaBetaPruning(board)
 	print "Lets Start. I play first, human! \n"
+
+	print stats
 	printBoard(board)
 
 	while not getBoardState(board):
@@ -186,14 +188,16 @@ def playTicTacToe():
 			nextBoard = getPlayerMove(board)
 
 		board = nextBoard
+		print stats
 		printBoard(board)
 
 		if getBoardState(board):
 			break
 
-		value, board = alplaBetaPruning(board)
+		(value, board), stats = alplaBetaPruning(board)
 
 		print "\nMy Turn. Prepare yourself. \n"
+		print stats
 		printBoard(board)
 
 	status = getBoardState(board)
@@ -311,3 +315,5 @@ print getBranchingFactor(stats[0], stats[1])
 
 _, stats = alplaBetaPruning(getEmptyBoard(), getMovesEvenBetterOrdered)
 print getBranchingFactor(stats[0], stats[1])
+
+playTicTacToe()

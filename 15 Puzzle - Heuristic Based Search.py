@@ -50,8 +50,8 @@ def getManhattanHeuristic(state):
 
 assert getManhattanHeuristic(str([[2, 1, 3, 5], [4, 0, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]])) == 6
 
-def isGoal(state, getHeuristic = getManhattanHeuristic):
-	return getHeuristic(state) == 0
+def isGoal(state):
+	return getManhattanHeuristic(state) == 0
 		
 assert isGoal(str([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]))
 assert isGoal(getInitialState())
@@ -133,7 +133,7 @@ def dfs(state, gvalue, flimit, getHeuristic = getManhattanHeuristic):
 	minVal = INF
 
 	for neighbour in getNeighbours(state):
-		val, count = dfs(neighbour, gvalue + 1, flimit)
+		val, count = dfs(neighbour, gvalue + 1, flimit, getHeuristic)
 		generatedNodes += 1 + count
 
 		if val == FOUND:
@@ -150,7 +150,7 @@ def IDAStar(state, getHeuristic = getManhattanHeuristic):
 	flimit = getHeuristic(state)
 
 	while True:
-		val, gen = dfs(state, 0, flimit)
+		val, gen = dfs(state, 0, flimit, getHeuristic)
 		generatedNodes += gen
 		
 		if val == FOUND:
@@ -186,7 +186,7 @@ def RBFS(state, flimit = INF, gvalue = 0, fvalue = None, getHeuristic = getManha
 			return False, minValue, generatedNodes
 		
 		altValue, altState = fvalues[1]
-		result, value, genNodes = RBFS(neighbours[minState], min(flimit, altValue), gvalue + 1, minValue)
+		result, value, genNodes = RBFS(neighbours[minState], min(flimit, altValue), gvalue + 1, minValue, getHeuristic)
 		fvalues[0] = (value, minState)
 		generatedNodes += genNodes
 		
@@ -279,15 +279,13 @@ def getMisplacedTilesHeuristic(state):
 assert getMisplacedTilesHeuristic(str([[2, 1, 3, 5], [4, 0, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]])) == 3
 
 def getWeightedHeuristic(state, w1 = 0, w2 = 1.5):
-	return int(math.ceil(w1 * getManhattanHeuristic(state) + w2 * getMisplacedTilesHeuristic(state)))
+	return min(abs(getManhattanHeuristic(state)-8), getManhattanHeuristic(state))
 
-assert getWeightedHeuristic(str([[2, 1, 3, 5], [4, 0, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]), 0.5, 0.5) == 5
-
-def compareHeuristics(moves = 100, heuristic1 = getManhattanHeuristic, heuristic2 = getWeightedHeuristic):
+def compareHeuristics(moves = 30, heuristic1 = getManhattanHeuristic, heuristic2 = getWeightedHeuristic):
 	state = getRandomSolvableState(random.randint(moves - 9, moves))
 	opt, _, gen = AStar(state)
 	
-	if opt > 31 or gen > 3500:
+	if opt > 13 or gen > 45:
 		return None
 
 	print state, opt, gen
@@ -305,7 +303,7 @@ def compareHeuristics(moves = 100, heuristic1 = getManhattanHeuristic, heuristic
 
 
 def writeDataToFile2b():
-	file = open("2bv0,2.txt", "w")
+	file = open("2bv1,2.txt", "w")
 	file.write("state, optimal, (heuristic1)(IDA* opt, IDA* generated, IDA* iterations), (heuristic1)(RBFS solved, RBFS opt, RBFS generated), (heuristic2)(IDA* opt, IDA* generated, IDA* iterations), (heuristic2)(RBFS solved, RBFS opt, RBFS generated)\n\n")
 	i = 0
 
@@ -319,4 +317,11 @@ def writeDataToFile2b():
 
 	file.close()
 
+
 writeDataToFile2b()
+compareHeuristics()
+
+# writeDataToFile2b()
+
+# print AStar(str([[1, 2, 6, 11], [9, 3, 7, 0], [4, 8, 5, 15], [12, 10, 13, 14]]))
+# print IDAStar(str([[1, 2, 6, 11], [9, 3, 7, 0], [4, 8, 5, 15], [12, 10, 13, 14]]))
